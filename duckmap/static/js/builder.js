@@ -11,9 +11,11 @@ function initMap() {
     
     var segments = [];
     var areas = [];
+    var area_borders = [];
     var building = false;
     var currentSegment = null;
     var currentArea = null;
+    var currentAreaBorders = null;
     var drawing = false;
     
     var data = [];
@@ -61,6 +63,7 @@ function initMap() {
                 drawing = false;
             } else if (building) {
                 areas.push(currentArea);
+                area_borders.push(currentAreaBorders);
                 var idx = areas.length - 1;
                 $("#area_info tbody").append("<tr id=\"area_" + idx + "\"><td>" + 
                         areas.length + "</td><td>" + area_html + 
@@ -78,6 +81,7 @@ function initMap() {
                     }
                 });
                 currentArea = null;
+                currentAreaBorders = null;
                 building = false;
             } 
         }
@@ -123,10 +127,10 @@ function initMap() {
                         fillOpacity: 0.4,
                         zIndex: -1                        
                     });
+                    currentAreaBorders = [];
                     currentArea.setMap(map);
                 }
-                console.log(currentArea);
-                console.log(currentArea.getPath());
+                currentAreaBorders.push(segments.indexOf(this));
                 this.getPath().forEach(function(ll) {
                     currentArea.getPath().push(ll);
                 });
@@ -143,5 +147,51 @@ function initMap() {
             $("#info tbody tr").eq(idx).css("background-color", "#ffff00");
         }
     }
+    
+    $(".save_map").click(function() {
+        var map_name = $("#map_name").html();
+        var flat_borders = [];
+        var flat_areas = {};
+        
+        $("#border_info tbody tr").each(function(i, row) {
+            var border = segments[i];
+            var border_type = $(row).find("select").val();
+            var flat_border = []
+            border.getPath().forEach(function(ll) {
+                flat_border.push({
+                    lat: ll.lat(),
+                    lng: ll.lng()
+                });
+            });
+            flat_borders.push({
+                type: border_type,
+                points: flat_border
+            });
+        });
+        
+        $("area_info tbody tr").each(function(i, row) {
+            flat_areas[$(row).find("input").val()] = area_borders[i];
+        });
+        
+        var data = {
+            mapname: map_name,
+            borders: flat_borders,
+            areas: flat_areas 
+        };
+        
+        console.log(data);
+        /*
+        $.ajax({
+            type: "POST",
+            dataType: "json",
+            contentType: "application/json; charset=utf-8",
+            url: "savemap",
+            data: JSON.stringify(data),
+            success: function(data) {
+                console.log(data);
+            }
+        });
+        */
+    });
     
 }

@@ -10,9 +10,9 @@ with open('/etc/duckmap/google_maps.key', 'rb') as f:
 def sample():
     return render_template('sample.html')
     
-@app.route('/builder')
-def builer():
-    return render_template('builder.html', api_key=api_key)
+@app.route('/builder/<mapname>')
+def builder(mapname):
+    return render_template('builder.html', map_name=mapname, api_key=api_key)
 
 if __name__ == '__main__':
     app.run(port=5001)
