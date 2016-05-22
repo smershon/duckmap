@@ -93,6 +93,10 @@ function initMap() {
         pushEdge(e);
     });
     
+    function vertexMatch(v0, v1) {
+        return (v0.lat() == v1.lat() && v0.lng() == v1.lng()); 
+    }
+    
     function pushEdge(e) {
         if (drawing) {
             // Add a vertex to the current segment
@@ -131,9 +135,19 @@ function initMap() {
                     currentArea.setMap(map);
                 }
                 currentAreaBorders.push(segments.indexOf(this));
-                this.getPath().forEach(function(ll) {
-                    currentArea.getPath().push(ll);
-                });
+                var existingPath = currentArea.getPath();
+                var endPoint = existingPath.getAt(existingPath.getLength() - 1);
+                if (existingPath.getLength() <= 0 || vertexMatch(endPoint, this.getPath().getAt(0))) {
+                    this.getPath().forEach(function(ll) {
+                        currentArea.getPath().push(ll);
+                    });
+                } else {
+                    // Reverse the order of this.getPath() before pushing
+                    var newPath = this.getPath();
+                    for (var i = newPath.getLength() - 1; i--; i >= 0) {
+                        currentArea.getPath().push(newPath.getAt(i));
+                    }
+                }
             });
             currentSegment.getPath().push(e.latLng);
         }
