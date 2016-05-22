@@ -183,8 +183,13 @@ function initMap() {
             });
         });
         
-        $("area_info tbody tr").each(function(i, row) {
-            flat_areas[$(row).find("input").val()] = area_borders[i];
+        $("#area_info tbody tr").each(function(i, row) {
+            var area_name = $(row).find("input").val();
+            if (flat_areas[area_name]) {
+                flat_areas[area_name].push(area_borders[i]);
+            } else {
+                flat_areas[area_name] = [area_borders[i]];
+            }
         });
         
         var data = {
@@ -193,8 +198,6 @@ function initMap() {
             areas: flat_areas 
         };
         
-        console.log(data);
-        /*
         $.ajax({
             type: "POST",
             dataType: "json",
@@ -205,7 +208,7 @@ function initMap() {
                 console.log(data);
             }
         });
-        */
+
     });
     
 }
